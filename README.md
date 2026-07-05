@@ -1,61 +1,58 @@
 # Compliance Audit Suite
 
-Point it at a live web application and that application's documentation PDF.
-It reads every documented screen, walks the real application with a headless
-browser, and produces a page-by-page compliance report: what's matched,
-what's missing, and what showed up on screen that was never documented.
 
-This is a ground-up reimplementation of an existing documentation/UI
-compliance tool. It keeps the same end-user capability — "upload a PDF, give
-me a URL, tell me where the product drifted from the docs" — but is built on
-a completely different stack: a Node.js/TypeScript service with a relational
-SQLite schema and a server-rendered dashboard, instead of a Python/Streamlit
-script that shells out to subprocesses and writes loose JSON/HTML files to
-disk.
+Compliance Audit Suite is a web application that compares a website with the requirements provided in a PDF document. It extracts the requirements, analyzes the website page by page, and generates a compliance report with matching results and an overall compliance score.
 
----
+## Features
 
-## What it does
+- Upload requirement PDF
+- Analyze any website URL
+- Extract requirements automatically
+- Page-wise compliance analysis
+- Overall compliance score
+- Downloadable compliance report
 
-1. **Reads the documentation.** You upload a PDF user guide. The service
-   extracts its text, splits it into titled sections, and tags each section
-   with the UI details a technical writer tends to mention in prose — button
-   names, table columns, form fields, badges, tabs, cards, and chart
-   mentions.
+## Tech Stack
 
-2. **Inspects the live application.** A headless Chromium session (via
-   Puppeteer) logs into the target app with the credentials you provide and
-   visits every section in the sidebar — My Applications, Facilities, Action
-   Items, User Management, Announcements, Settings, FAQs, Tickets, Contact —
-   capturing a structured snapshot of each screen's headings, buttons,
-   inputs, table headers, cards, badges, tabs and chart count, plus a
-   full-page screenshot.
+- **Frontend:** HTML, CSS, JavaScript, EJS
+- **Backend:** Node.js, Express.js, TypeScript
 
-3. **Reconciles the two.** Each live screen is aligned to the documentation
-   section that describes it (exact title match → substring match → fuzzy
-   token match), then compared two ways:
-   - A deterministic fuzzy-matching pass (custom Levenshtein/token-set
-     similarity — no external fuzzy-matching library) that always runs and
-     is used whenever the AI step is unavailable.
-   - An LLM adjudication pass (Groq, OpenAI or Gemini — your choice) that
-     reads the documentation excerpt and the structured screen snapshot and
-     returns a compliance verdict with matched/missing/extra items and a
-     list of specific discrepancies with severity ratings.
+## Project Structure
 
-   The final score is always recomputed deterministically from the
-   matched/missing/extra sets, so every report is reproducible even though
-   the LLM's own phrasing can vary run to run.
+```
+compliance-audit-suite
+├── public/
+├── src/
+├── storage/
+├── tests/
+├── views/
+├── package.json
+└── README.md
+```
 
-4. **Reports it.** Every screen gets its own HTML report (score, matched
-   items, missing items, undocumented extras, a discrepancy table, the
-   captured screenshot, and per-component coverage). A dashboard page rolls
-   every screen into one overall score, and the whole run can be downloaded
-   as a single `.zip`.
+## Getting Started
 
-Everything is persisted to a relational SQLite database (`audits`,
-`blueprint_sections`, `page_findings`) rather than to a folder of loose JSON
-files, so past runs, their scores, and their raw findings can be queried
-directly.
+```bash
+git clone https://github.com/Vaishnavibhat09/compliance-audit-suite.git
+cd compliance-audit-suite
+npm install
+npm run dev
+```
+
+> Create a `.env` file using `.env.example` before running the project.
+
+## Future Improvements
+
+- User authentication
+- Dashboard analytics
+- AI-based suggestions
+- Cloud deployment
+
+## Author
+
+**Vaishnavi Bhat**
+
+GitHub: https://github.com/Vaishnavibhat09
 
 ---
 
