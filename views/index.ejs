@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Compliance Audit Suite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/styles.css" />
+</head>
+<body>
+  <div class="shell">
+    <div class="top-mark">
+      <div class="glyph">CA</div>
+      <div class="name">Compliance Audit Suite</div>
+    </div>
+
+    <div class="hero">
+      <div class="eyebrow">Documentation vs. reality</div>
+      <h1>Point it at a live app and its user guide.<br />It tells you where the two disagree.</h1>
+      <p class="lede">
+        Upload a product's documentation PDF, give it a URL and a login, and the suite reads
+        every documented screen, walks the real application, and produces a page-by-page
+        compliance report — matched features, missing features, and anything undocumented
+        that showed up anyway.
+      </p>
+    </div>
+
+    <div class="grid-two">
+      <div class="panel">
+        <h2>Run a new audit</h2>
+        <p class="sub">Takes a few minutes depending on how many screens are documented.</p>
+
+        <div class="error-banner" id="errorBanner"></div>
+
+        <form id="auditForm">
+          <div class="field">
+            <label for="documentationPdf">Documentation PDF</label>
+            <label class="dropzone" id="dropzone" for="documentationPdf">
+              <div>Drop the user guide here, or click to browse</div>
+              <div class="filename" id="filenameLabel"></div>
+            </label>
+            <input type="file" id="documentationPdf" name="documentationPdf" accept="application/pdf" style="display:none" required />
+          </div>
+
+          <div class="field">
+            <label for="targetUrl">Target application URL</label>
+            <input type="url" id="targetUrl" name="targetUrl" value="<%= defaults.targetUrl %>" required />
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="loginEmail">Login email</label>
+              <input type="text" id="loginEmail" name="loginEmail" value="<%= defaults.loginEmail %>" />
+            </div>
+            <div class="field">
+              <label for="loginPassword">Login password</label>
+              <input type="password" id="loginPassword" name="loginPassword" value="<%= defaults.loginPassword %>" />
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="aiProvider">AI provider</label>
+              <select id="aiProvider" name="aiProvider">
+                <option value="groq" <%= defaults.aiProvider === 'groq' ? 'selected' : '' %>>Groq</option>
+                <option value="openai" <%= defaults.aiProvider === 'openai' ? 'selected' : '' %>>OpenAI</option>
+                <option value="gemini" <%= defaults.aiProvider === 'gemini' ? 'selected' : '' %>>Gemini</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="aiModel">Model</label>
+              <input type="text" id="aiModel" name="aiModel" value="<%= defaults.aiModel %>" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="apiKey">Provider API key</label>
+            <input type="password" id="apiKey" name="apiKey" placeholder="Leave blank to use the server-configured key" />
+          </div>
+
+          <button type="submit" class="btn" id="submitBtn">Run compliance audit</button>
+        </form>
+      </div>
+
+      <div class="panel">
+        <h2>Recent audits</h2>
+        <p class="sub">Jump back into a run you already started.</p>
+
+        <% if (recentAudits.length === 0) { %>
+          <div class="empty-state">No audits yet. Run your first one on the left.</div>
+        <% } else { %>
+          <ul class="history-list">
+            <% recentAudits.forEach(function(audit) { %>
+              <li>
+                <a href="/audits/<%= audit.id %>"><%= audit.targetUrl %></a>
+                <span class="status <%= audit.status %>"><%= audit.status.replace(/_/g, ' ') %></span>
+              </li>
+            <% }) %>
+          </ul>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

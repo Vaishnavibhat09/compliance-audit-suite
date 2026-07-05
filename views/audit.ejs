@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Audit <%= audit.id %> — Compliance Audit Suite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/styles.css" />
+</head>
+<body>
+  <div class="shell">
+    <div class="top-mark">
+      <a href="/" style="display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;">
+        <div class="glyph">CA</div>
+        <div class="name">Compliance Audit Suite</div>
+      </a>
+    </div>
+
+    <div class="hero">
+      <div class="eyebrow">Audit <%= audit.id %></div>
+      <h1 id="targetHeading"><%= audit.targetUrl %></h1>
+    </div>
+
+    <div class="stepper" id="stepper">
+      <div class="step" data-stage="reading_blueprint"><div class="tag">Stage 1</div><div class="label">Reading blueprint</div></div>
+      <div class="step" data-stage="inspecting_surface"><div class="tag">Stage 2</div><div class="label">Inspecting live surface</div></div>
+      <div class="step" data-stage="reconciling"><div class="tag">Stage 3</div><div class="label">Reconciling</div></div>
+      <div class="step" data-stage="completed"><div class="tag">Stage 4</div><div class="label">Report ready</div></div>
+    </div>
+
+    <div id="failureBox" class="error-banner"></div>
+
+    <div id="resultsArea"></div>
+  </div>
+
+  <script>
+    window.__AUDIT_ID__ = <%- JSON.stringify(audit.id) %>;
+  </script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title><%= pageTitle %> — Compliance Report</title>
+<style>
+  :root {
+    --accent: <%= statusColor %>;
+    --ink: #1b1f27;
+    --paper: #ffffff;
+    --canvas: #10131a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Roboto, system-ui, sans-serif;
+    background: var(--canvas);
+    color: #e7e9ee;
+    padding: 32px;
+  }
+  .sheet {
+    max-width: 1040px;
+    margin: 0 auto;
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0,0,0,.45);
+  }
+  .banner {
+    background: linear-gradient(135deg, var(--accent), #0d0f14);
+    color: white;
+    padding: 36px 40px;
+  }
+  .banner .eyebrow { text-transform: uppercase; letter-spacing: .12em; font-size: 12px; opacity: .85; }
+  .banner h1 { margin: 6px 0 0; font-size: 28px; }
+  .score-row { display: flex; align-items: baseline; gap: 18px; margin-top: 18px; }
+  .score-row .score { font-size: 56px; font-weight: 700; }
+  .score-row .badge {
+    padding: 6px 14px; border-radius: 999px; background: rgba(255,255,255,.18);
+    font-weight: 600; letter-spacing: .04em; font-size: 13px;
+  }
+  .meter { height: 10px; border-radius: 999px; background: rgba(255,255,255,.25); margin-top: 16px; overflow: hidden; }
+  .meter > span { display: block; height: 100%; background: white; width: <%= complianceScore %>%; }
+  .body { padding: 36px 40px; }
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+  .stat { background: #f4f5f8; border-radius: 12px; padding: 16px; text-align: center; }
+  .stat .n { font-size: 26px; font-weight: 700; }
+  .stat .l { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: #6b7280; }
+  section { margin-bottom: 28px; }
+  section h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .08em; color: #444; border-bottom: 2px solid #eee; padding-bottom: 8px; }
+  ul.item-list { list-style: none; padding: 0; margin: 12px 0 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px 24px; }
+  ul.item-list li { padding: 6px 10px; border-radius: 8px; background: #fafafa; font-size: 14px; }
+  ul.item-list.matched li { border-left: 4px solid #22c55e; }
+  ul.item-list.missing li { border-left: 4px solid #ef4444; }
+  ul.item-list.extra li { border-left: 4px solid #f59e0b; }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 14px; }
+  th { background: #1b1f27; color: white; padding: 10px 12px; text-align: left; }
+  td { padding: 10px 12px; border-bottom: 1px solid #ececec; vertical-align: top; }
+  tr:nth-child(even) td { background: #fafafa; }
+  .sev-High { color: #dc2626; font-weight: 700; }
+  .sev-Medium { color: #d97706; font-weight: 700; }
+  .sev-Low { color: #16a34a; font-weight: 700; }
+  .screenshot img { width: 100%; border-radius: 10px; border: 1px solid #e5e7eb; }
+  .summary-box { background: #f4f5f8; border-radius: 12px; padding: 18px; line-height: 1.6; }
+  .empty { color: #9ca3af; font-style: italic; }
+  footer { text-align: center; padding: 24px; color: #6b7280; font-size: 13px; }
+</style>
+</head>
+<body>
+  <div class="sheet">
+    <div class="banner">
+      <div class="eyebrow">Compliance Audit Suite</div>
+      <h1><%= pageTitle %></h1>
+      <div class="score-row">
+        <div class="score"><%= complianceScore %>%</div>
+        <div class="badge"><%= status %></div>
+      </div>
+      <div class="meter"><span></span></div>
+    </div>
+
+    <div class="body">
+      <div class="stat-grid">
+        <div class="stat"><div class="n"><%= matched.length %></div><div class="l">Matched</div></div>
+        <div class="stat"><div class="n"><%= missing.length %></div><div class="l">Missing</div></div>
+        <div class="stat"><div class="n"><%= extra.length %></div><div class="l">Extra</div></div>
+        <div class="stat"><div class="n"><%= complianceScore %>%</div><div class="l">Compliance</div></div>
+      </div>
+
+      <% if (matchedBlueprintTitle) { %>
+      <section>
+        <h2>Matched Documentation Section</h2>
+        <p><%= matchedBlueprintTitle %></p>
+      </section>
+      <% } %>
+
+      <% if (screenshotBase64) { %>
+      <section class="screenshot">
+        <h2>Captured Screenshot</h2>
+        <img src="data:image/png;base64,<%= screenshotBase64 %>" alt="Screenshot of <%= pageTitle %>" />
+      </section>
+      <% } %>
+
+      <section>
+        <h2>AI Recommendation</h2>
+        <div class="summary-box"><%= summary || "No summary available." %></div>
+      </section>
+
+      <section>
+        <h2>Matched Elements</h2>
+        <% if (matched.length) { %>
+        <ul class="item-list matched">
+          <% matched.forEach(function(item) { %><li>✔ <%= item %></li><% }) %>
+        </ul>
+        <% } else { %><p class="empty">Nothing matched.</p><% } %>
+      </section>
+
+      <section>
+        <h2>Missing Elements</h2>
+        <% if (missing.length) { %>
+        <ul class="item-list missing">
+          <% missing.forEach(function(item) { %><li>✘ <%= item %></li><% }) %>
+        </ul>
+        <% } else { %><p class="empty">Nothing missing.</p><% } %>
+      </section>
+
+      <section>
+        <h2>Extra (Undocumented) Elements</h2>
+        <% if (extra.length) { %>
+        <ul class="item-list extra">
+          <% extra.forEach(function(item) { %><li>⚠ <%= item %></li><% }) %>
+        </ul>
+        <% } else { %><p class="empty">No undocumented elements found.</p><% } %>
+      </section>
+
+      <section>
+        <h2>Discrepancy Detail</h2>
+        <% if (issues.length) { %>
+        <table>
+          <tr><th>Component</th><th>Expected</th><th>Actual</th><th>Severity</th><th>Confidence</th></tr>
+          <% issues.forEach(function(issue) { %>
+          <tr>
+            <td><%= issue.component %></td>
+            <td><%= issue.expected %></td>
+            <td><%= issue.actual %></td>
+            <td class="sev-<%= issue.severity %>"><%= issue.severity %></td>
+            <td><%= Math.round((issue.confidence || 0) * 100) %>%</td>
+          </tr>
+          <% }) %>
+        </table>
+        <% } else { %><p class="empty">No discrepancies recorded.</p><% } %>
+      </section>
+
+      <% if (coverageRows.length) { %>
+      <section>
+        <h2>Component Coverage</h2>
+        <table>
+          <tr><th>Component</th><th>Matched</th><th>Expected</th><th>Coverage</th></tr>
+          <% coverageRows.forEach(function(row) { %>
+          <tr>
+            <td><%= row.component %></td>
+            <td><%= row.matched %></td>
+            <td><%= row.expected %></td>
+            <td><%= row.coveragePercent %>%</td>
+          </tr>
+          <% }) %>
+        </table>
+      </section>
+      <% } %>
+    </div>
+
+    <footer>Generated by Compliance Audit Suite on <%= generatedAt %></footer>
+  </div>
+</body>
+</html>
